@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="saikootau_api.default_content_type">application/xml</parameter>
+    </parameters>
+    <services>
+        <service class="Saikootau\ApiBundle\MediaType\MediaTypeNegotiator"
+                 id="saikootau_api.media_type.serializer_negotiator"
+                 public="true">
+            <call method="addHandler">
+                <argument type="service" id="saikootau_api.serializer.xml_serializer" />
+            </call>
+            <call method="addHandler">
+                <argument type="service" id="saikootau_api.serializer.json_serializer" />
+            </call>
+        </service>
+
+        <service class="Saikootau\ApiBundle\Serializer\XmlSerializer"
+                 id="saikootau_api.serializer.xml_serializer"
+                 public="false">
+            <argument type="service" id="jms_serializer" />
+        </service>
+
+        <service class="Saikootau\ApiBundle\Serializer\JsonSerializer"
+                 id="saikootau_api.serializer.json_serializer"
+                 public="false">
+            <argument type="service" id="jms_serializer" />
+        </service>
+
+        <service class="Saikootau\ApiBundle\Event\Listener\ExceptionResponseListener"
+                 id="saikootau_api.event.listener.exception_response"
+                 public="false">
+            <argument type="service" id="saikootau_api.media_type.serializer_negotiator" />
+            <argument type="string">%saikootau_api.default_content_type%</argument>
+            <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException" />
+        </service>
+
+        <service class="Saikootau\ApiBundle\Event\Listener\ResponseListener"
+                 id="saikootau_api.event.listener.response"
+                 public="false">
+            <argument type="service" id="saikootau_api.media_type.serializer_negotiator" />
+            <argument type="string">%saikootau_api.default_content_type%</argument>
+            <tag name="kernel.event_listener" event="kernel.view" method="onKernelView" />
+        </service>
+    </services>
+</container>
