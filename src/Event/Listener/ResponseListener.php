@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Saikootau\ApiBundle\Event\Listener;
 
+use Saikootau\ApiBundle\Http\ResourceResponse;
 use Saikootau\ApiBundle\MediaType\Exception\NonNegotiableMediaTypeException;
 use Saikootau\ApiBundle\MediaType\MediaTypeNegotiator;
 use Saikootau\ApiBundle\MediaType\MediaTypes;
@@ -39,16 +40,66 @@ class ResponseListener
         $serializer = $this->getSerializer($event->getRequest());
         $body = '';
         if ($this->isContentAllowed($event->getRequest()->getMethod())) {
-            $body = $serializer->serialize($controllerResult);
+            $body = $serializer->serialize($this->getResource($controllerResult));
         }
 
-        $event->setResponse(
-            $this->createResponse(
-                $body,
-                Response::HTTP_OK,
-                $serializer->getContentType()
-            )
-        );
+        $event->setResponse(new Response(
+            $body,
+            $this->getStatusCode($event->getRequest(), $controllerResult),
+            $this->getHeaders($controllerResult, $serializer->getContentType())
+        ));
+    }
+
+    /**
+     * Get the actual resource from the controller result.
+     *
+     * @param object $controllerResult
+     *
+     * @return object
+     */
+    private function getResource(object $controllerResult): object
+    {
+        if ($controllerResult instanceof ResourceResponse) {
+            return $controllerResult->getResource();
+        }
+
+        return $controllerResult;
+    }
+
+    /**
+     * Get the status code to return from the controller result.
+     * Defaults to 202 for POST, PUT and 200 for every other method.
+     *
+     * @param Request $request
+     * @param object  $controllerResult
+     *
+     * @return int
+     */
+    private function getStatusCode(Request $request, object $controllerResult): int
+    {
+        if ($controllerResult instanceof ResourceResponse) {
+            return $controllerResult->getStatusCode();
+        }
+
+        return in_array($request->getMethod(), ['POST', 'PUT']) ? Response::HTTP_ACCEPTED : Response::HTTP_OK;
+    }
+
+    /**
+     * Generates an array of headers for the given controller result.
+     *
+     * @param object $controllerResult
+     * @param string $contentType
+     *
+     * @return array
+     */
+    private function getHeaders(object $controllerResult, string $contentType): array
+    {
+        $headers = ['Content-Type' => $contentType];
+        if ($controllerResult instanceof ResourceResponse) {
+            $headers = array_merge($controllerResult->getHeaders(), $headers);
+        }
+
+        return $headers;
     }
 
     /**
@@ -61,24 +112,6 @@ class ResponseListener
     private function isContentAllowed(string $method): bool
     {
         return !in_array($method, self::$noContentMethods);
-    }
-
-    /**
-     * Create a response for the given data.
-     *
-     * @param string $body
-     * @param int    $status
-     * @param string $contentType
-     *
-     * @return Response
-     */
-    private function createResponse(string $body, int $status, string $contentType): Response
-    {
-        return new Response(
-            $body,
-            $status,
-            ['Content-Type' => $contentType]
-        );
     }
 
     /**

@@ -7,6 +7,7 @@ namespace Saikootau\ApiBundle\Tests\Event\Listener;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Saikootau\ApiBundle\Event\Listener\ResponseListener;
+use Saikootau\ApiBundle\Http\ResourceResponse;
 use Saikootau\ApiBundle\MediaType\Exception\NonNegotiableMediaTypeException;
 use Saikootau\ApiBundle\MediaType\MediaTypeHandler;
 use Saikootau\ApiBundle\MediaType\MediaTypeNegotiator;
@@ -75,6 +76,70 @@ class ResponseListenerTest extends TestCase
         $event->getResponse()->willReturn(null);
         $event->getControllerResult()->willReturn(new stdClass());
         $event->setResponse(Argument::type(Response::class))->shouldBeCalled();
+
+        $listener->onKernelView($event->reveal());
+    }
+
+    public function testStatusCodeForPostAndPutIsCorrect(): void
+    {
+        $serializer = $this->getMockBuilder([Serializer::class, MediaTypeHandler::class])->getMock();
+        $mediaTypeNegotiator = $this->prophesize(MediaTypeNegotiator::class);
+        $mediaTypeNegotiator->negotiate(Argument::any())->willReturn($serializer);
+
+        $listener = new ResponseListener(
+            $mediaTypeNegotiator->reveal(),
+            MediaTypes::TYPE_APPLICATION_XML
+        );
+
+        $postEvent = $this->prophesize(GetResponseForControllerResultEvent::class);
+        $postEvent->getRequest()->willReturn(Request::create('/', Request::METHOD_POST, [], [], [], [
+            'HTTP_ACCEPT' => 'application/xml;q=0.8',
+        ]));
+        $postEvent->getResponse()->willReturn(null);
+        $postEvent->getControllerResult()->willReturn(new stdClass());
+        $postEvent->setResponse(Argument::that(function (Response $response) {
+            return Response::HTTP_ACCEPTED === $response->getStatusCode();
+        }))->shouldBeCalled();
+
+        $putEvent = $this->prophesize(GetResponseForControllerResultEvent::class);
+        $putEvent->getRequest()->willReturn(Request::create('/', Request::METHOD_POST, [], [], [], [
+            'HTTP_ACCEPT' => 'application/xml;q=0.8',
+        ]));
+        $putEvent->getResponse()->willReturn(null);
+        $putEvent->getControllerResult()->willReturn(new stdClass());
+        $putEvent->setResponse(Argument::that(function (Response $response) {
+            return Response::HTTP_ACCEPTED === $response->getStatusCode();
+        }))->shouldBeCalled();
+
+        $listener->onKernelView($postEvent->reveal());
+        $listener->onKernelView($putEvent->reveal());
+    }
+
+    public function testResourceResponseIsConvertedCorrectly(): void
+    {
+        $serializer = $this->getMockBuilder([Serializer::class, MediaTypeHandler::class])->getMock();
+        $mediaTypeNegotiator = $this->prophesize(MediaTypeNegotiator::class);
+        $mediaTypeNegotiator->negotiate(Argument::any())->willReturn($serializer);
+
+        $listener = new ResponseListener(
+            $mediaTypeNegotiator->reveal(),
+            MediaTypes::TYPE_APPLICATION_XML
+        );
+
+        $response = new ResourceResponse(new stdClass(), Response::HTTP_NOT_ACCEPTABLE, ['X-Test' => 'Test']);
+
+        $event = $this->prophesize(GetResponseForControllerResultEvent::class);
+        $event->getRequest()->willReturn(Request::create('/', Request::METHOD_POST, [], [], [], [
+            'HTTP_ACCEPT' => 'application/xml;q=0.8',
+        ]));
+        $event->getResponse()->willReturn(null);
+        $event->getControllerResult()->willReturn($response);
+        $event->setResponse(Argument::that(function (Response $response) {
+            $this->assertSame(Response::HTTP_NOT_ACCEPTABLE, $response->getStatusCode());
+            $this->assertSame('Test', $response->headers->get('X-Test'));
+
+            return true;
+        }))->shouldBeCalled();
 
         $listener->onKernelView($event->reveal());
     }
