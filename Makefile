@@ -22,17 +22,13 @@ phpunit: ; ./vendor/bin/phpunit
 
 coverage: ; ./vendor/bin/phpunit \
             --coverage-text \
+												--coverage-clover build/phpunit_clover.xml \
+												--log-junit build/phpunit_junit.xml \
             --coverage-html build/coverage
-#
-# Build
-#
 
-build-coverage: ; ./vendor/bin/phpunit \
-                  --coverage-text \
-                  --coverage-clover build/phpunit_clover.xml \
-                  --log-junit build/phpunit_junit.xml \
-                  --coverage-html build/coverage \
-                  --colors=never
+#
+# General helpers
+#
 
 install: ; composer install
 
