@@ -23,7 +23,7 @@ interface Serializer
      *
      * @return object
      */
-    public function deserialize(string $document, string $className);
+    public function deserialize(string $document, string $className): object;
 
     /**
      * Get the content type for the serializer.
