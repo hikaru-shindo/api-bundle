@@ -1,0 +1,42 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+  - hhvm
+
+env:
+  global:
+    - COMPOSER_ROOT_VERSION=2.0.0
+
+sudo: false
+dist: trusty
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+before_install:
+  - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
+  - composer self-update
+
+before_script:
+  - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then echo "memory_limit = -1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini; fi
+  - composer install --no-interaction
+
+jobs:
+  include:
+    - stage: Test
+      script:
+        - make lint
+
+    - stage: Test
+      before_script:
+        - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{.disabled,}
+        - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
+      script:
+        - make coverage
+
+    - stage: Test
+      script:
+        - make phpstan
