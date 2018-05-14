@@ -21,20 +21,19 @@ class ResponseListener extends MediaTypeListener
             return;
         }
 
-        if (!$this->isContentAllowed($event->getRequest()->getMethod())) {
-            $event->setResponse(
-                $this->createEmptyResponse(Response::HTTP_OK)
-            );
-
-            return;
+        $serializer = $this->getSerializer($event->getRequest());
+        $body = '';
+        if ($this->isContentAllowed($event->getRequest()->getMethod())) {
+            $body = $serializer->serialize($controllerResult);
         }
 
-        $serializer = $this->getSerializer($event->getRequest());
-        $event->setResponse(new Response(
-            $serializer->serialize($controllerResult),
-            Response::HTTP_OK,
-            ['Content-Type' => $serializer->getContentType()]
-        ));
+        $event->setResponse(
+            $this->createResponse(
+                $body,
+                Response::HTTP_OK,
+                $serializer->getContentType()
+            )
+        );
     }
 
     /**
@@ -50,16 +49,20 @@ class ResponseListener extends MediaTypeListener
     }
 
     /**
-     * Create a response without any body.
+     * Create a response for the given data.
      *
-     * @param int $status
+     * @param string $body
+     * @param int    $status
+     * @param string $contentType
      *
      * @return Response
      */
-    private function createEmptyResponse(int $status): Response
+    private function createResponse(string $body, int $status, string $contentType): Response
     {
         return new Response(
-            '', $status
+            $body,
+            $status,
+            ['Content-Type' => $contentType]
         );
     }
 }
