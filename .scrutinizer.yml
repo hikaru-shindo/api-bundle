@@ -1,37 +1,14 @@
+tools:
+  external_code_coverage:
+    timeout: 600
+
 checks:
   php:
-    code_rating: true
-    duplication: true
-
-build:
-  nodes:
-    analysis:
-      environment:
-        php:
-          version: 7.2
-      cache:
-        disabled: false
-        directories:
-          - ~/.composer/cache
-  dependencies:
-    override:
-      - composer install --no-interaction --prefer-dist
-  tests:
-    override:
-      -
-        command: 'vendor/bin/phpunit --coverage-clover=coverage.xml'
-        coverage:
-          file: 'coverage.xml'
-          format: 'clover'
-
-tools:
-  php_cs_fixer: true
-  external_code_coverage:
-    timeout: 3600
+      code_rating: true
+      duplication: true
 
 filter:
   excluded_paths:
-    - docs
     - vendor/*
     - tests/*
     - bootstrap.php
