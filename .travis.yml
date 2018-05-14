@@ -22,7 +22,7 @@ before_install:
 
 before_script:
   - if [[ "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then echo "memory_limit = -1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini; fi
-  - composer install --no-interaction
+  - composer install --no-interaction --prefer-dist
 
 jobs:
   include:
@@ -36,6 +36,9 @@ jobs:
         - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
       script:
         - make coverage
+      after_script:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml
 
     - stage: Test
       script:
