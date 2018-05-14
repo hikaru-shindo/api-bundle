@@ -1,3 +1,8 @@
+checks:
+  php:
+    code_rating: true
+    duplication: true
+
 build:
   nodes:
     analysis:
@@ -11,6 +16,13 @@ build:
   dependencies:
     override:
       - composer install --no-interaction --prefer-dist
+  tests:
+    override:
+      -
+        command: 'vendor/bin/phpunit --coverage-clover=coverage.xml'
+        coverage:
+          file: 'coverage.xml'
+          format: 'clover'
 
 tools:
   php_cs_fixer: true
