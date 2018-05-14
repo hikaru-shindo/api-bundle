@@ -9,6 +9,7 @@ use Saikootau\ApiBundle\Resource\Builder\ServiceResourceBuilder;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
 class ExceptionResponseListener extends MediaTypeListener
@@ -37,8 +38,28 @@ class ExceptionResponseListener extends MediaTypeListener
 
         return new Response(
             $serializer->serialize($service),
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-            ['Content-Type' => $serializer->getContentType()]
+            $this->getResponseStatusCodeByException($exception),
+            $this->getResponseHeadersByException($serializer->getContentType(), $exception)
         );
+    }
+
+    private function getResponseStatusCodeByException(Throwable $exception): int
+    {
+        if ($exception instanceof HttpExceptionInterface) {
+            return $exception->getStatusCode();
+        }
+
+        return Response::HTTP_INTERNAL_SERVER_ERROR;
+    }
+
+    private function getResponseHeadersByException(string $contentType, Throwable $exception): array
+    {
+        $headers = [];
+        if ($exception instanceof HttpExceptionInterface) {
+            $headers = array_merge($headers, $exception->getHeaders());
+        }
+        $headers['Content-Type'] = $contentType;
+
+        return $headers;
     }
 }
