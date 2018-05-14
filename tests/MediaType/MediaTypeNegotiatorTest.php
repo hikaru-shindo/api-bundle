@@ -56,4 +56,23 @@ class MediaTypeNegotiatorTest extends TestCase
         $this->expectException(NonNegotiableMediaTypeException::class);
         $negotiator->negotiate('bar');
     }
+
+    /** @test */
+    public function shouldReturnArrayOfSupportedTypes(): void
+    {
+        $negotiator = new MediaTypeNegotiator();
+        $handlerProphecy1 = $this->prophesize(MediaTypeHandler::class);
+        $handlerProphecy2 = $this->prophesize(MediaTypeHandler::class);
+        $handlerProphecy3 = $this->prophesize(MediaTypeHandler::class);
+        $handlerProphecy1->getSupportedMediaTypes()->willReturn(['bar']);
+        $handlerProphecy2->getSupportedMediaTypes()->willReturn(['foo']);
+        $handlerProphecy3->getSupportedMediaTypes()->willReturn(['foo']);
+
+        $handler1 = $handlerProphecy1->reveal();
+        $handler2 = $handlerProphecy2->reveal();
+        $handler3 = $handlerProphecy3->reveal();
+        $negotiator->addHandler($handler1, $handler2, $handler3);
+
+        $this->assertEquals(['foo', 'bar'], $negotiator->getSupportedMediaTypes());
+    }
 }

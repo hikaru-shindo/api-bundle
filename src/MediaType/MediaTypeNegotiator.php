@@ -50,4 +50,19 @@ class MediaTypeNegotiator
 
         return $this;
     }
+
+    /**
+     * Get a list of all the media types supported by the registered handlers.
+     *
+     * @return string[]
+     */
+    public function getSupportedMediaTypes(): array
+    {
+        $mediaTypes = [];
+        foreach ($this->handlers as $handler) {
+            $mediaTypes = array_merge($handler->getSupportedMediaTypes(), $mediaTypes);
+        }
+
+        return array_values(array_unique($mediaTypes));
+    }
 }

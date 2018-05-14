@@ -16,6 +16,7 @@ use stdClass;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
+use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
 class ResponseListenerTest extends TestCase
 {
@@ -35,12 +36,11 @@ class ResponseListenerTest extends TestCase
         $listener->onKernelView($event->reveal());
     }
 
-    public function testWillFallbackToDefaultContentType(): void
+    public function testWillThrowExceptionForUnsupportedMediaType(): void
     {
-        $serializer = $this->getMockBuilder([Serializer::class, MediaTypeHandler::class])->getMock();
         $mediaTypeNegotiator = $this->prophesize(MediaTypeNegotiator::class);
         $mediaTypeNegotiator->negotiate(MediaTypes::TYPE_APPLICATION_JSON)->willThrow(new NonNegotiableMediaTypeException('application/json'));
-        $mediaTypeNegotiator->negotiate(MediaTypes::TYPE_APPLICATION_XML)->shouldBeCalledTimes(1)->willReturn($serializer);
+        $mediaTypeNegotiator->getSupportedMediaTypes()->willReturn([MediaTypes::TYPE_APPLICATION_XML]);
 
         $listener = new ResponseListener(
             $mediaTypeNegotiator->reveal(),
@@ -52,8 +52,8 @@ class ResponseListenerTest extends TestCase
             'HTTP_ACCEPT' => 'application/json;q=0.8',
         ]));
         $event->getControllerResult()->willReturn(new stdClass());
-        $event->setResponse(Argument::type(Response::class))->shouldBeCalled();
 
+        $this->expectException(NotAcceptableHttpException::class);
         $listener->onKernelView($event->reveal());
     }
 
