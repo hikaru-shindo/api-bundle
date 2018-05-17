@@ -39,7 +39,7 @@ class ResponseListener
 
         $serializer = $this->getSerializer($event->getRequest());
         $body = '';
-        if ($this->isContentAllowed($event->getRequest()->getMethod())) {
+        if ($this->isContentAllowed($event->getRequest()->getMethod()) && null !== $controllerResult) {
             $body = $serializer->serialize($this->getResource($controllerResult));
         }
 
@@ -70,12 +70,12 @@ class ResponseListener
      * Get the status code to return from the controller result.
      * Defaults to 202 for POST, PUT and 200 for every other method.
      *
-     * @param Request $request
-     * @param object  $controllerResult
+     * @param Request     $request
+     * @param object|null $controllerResult
      *
      * @return int
      */
-    private function getStatusCode(Request $request, object $controllerResult): int
+    private function getStatusCode(Request $request, ?object $controllerResult): int
     {
         if ($controllerResult instanceof ResourceResponse) {
             return $controllerResult->getStatusCode();
@@ -87,12 +87,12 @@ class ResponseListener
     /**
      * Generates an array of headers for the given controller result.
      *
-     * @param object $controllerResult
-     * @param string $contentType
+     * @param object|null $controllerResult
+     * @param string      $contentType
      *
      * @return array
      */
-    private function getHeaders(object $controllerResult, string $contentType): array
+    private function getHeaders(?object $controllerResult, string $contentType): array
     {
         $headers = ['Content-Type' => $contentType];
         if ($controllerResult instanceof ResourceResponse) {
