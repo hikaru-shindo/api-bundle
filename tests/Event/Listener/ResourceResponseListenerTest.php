@@ -6,7 +6,7 @@ namespace Saikootau\ApiBundle\Tests\Event\Listener;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Saikootau\ApiBundle\Event\Listener\ResponseListener;
+use Saikootau\ApiBundle\Event\Listener\ResourceResponseListener;
 use Saikootau\ApiBundle\Http\ResourceResponse;
 use Saikootau\ApiBundle\MediaType\Exception\NonNegotiableMediaTypeException;
 use Saikootau\ApiBundle\MediaType\MediaTypeHandler;
@@ -19,13 +19,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
-class ResponseListenerTest extends TestCase
+class ResourceResponseListenerTest extends TestCase
 {
     public function testSkipsEventIfResponseIsControllerResult(): void
     {
         $mediaTypeNegotiator = $this->prophesize(MediaTypeNegotiator::class)->reveal();
 
-        $listener = new ResponseListener(
+        $listener = new ResourceResponseListener(
             $mediaTypeNegotiator,
             MediaTypes::TYPE_APPLICATION_XML
         );
@@ -43,7 +43,7 @@ class ResponseListenerTest extends TestCase
         $mediaTypeNegotiator->negotiate(MediaTypes::TYPE_APPLICATION_JSON)->willThrow(new NonNegotiableMediaTypeException('application/json'));
         $mediaTypeNegotiator->getSupportedMediaTypes()->willReturn([MediaTypes::TYPE_APPLICATION_XML]);
 
-        $listener = new ResponseListener(
+        $listener = new ResourceResponseListener(
             $mediaTypeNegotiator->reveal(),
             MediaTypes::TYPE_APPLICATION_XML
         );
@@ -64,7 +64,7 @@ class ResponseListenerTest extends TestCase
         $mediaTypeNegotiator = $this->prophesize(MediaTypeNegotiator::class);
         $mediaTypeNegotiator->negotiate(MediaTypes::TYPE_APPLICATION_XML)->shouldBeCalledTimes(1)->willReturn($serializer);
 
-        $listener = new ResponseListener(
+        $listener = new ResourceResponseListener(
             $mediaTypeNegotiator->reveal(),
             MediaTypes::TYPE_APPLICATION_XML
         );
@@ -86,7 +86,7 @@ class ResponseListenerTest extends TestCase
         $mediaTypeNegotiator = $this->prophesize(MediaTypeNegotiator::class);
         $mediaTypeNegotiator->negotiate(Argument::any())->willReturn($serializer);
 
-        $listener = new ResponseListener(
+        $listener = new ResourceResponseListener(
             $mediaTypeNegotiator->reveal(),
             MediaTypes::TYPE_APPLICATION_XML
         );
@@ -121,7 +121,7 @@ class ResponseListenerTest extends TestCase
         $mediaTypeNegotiator = $this->prophesize(MediaTypeNegotiator::class);
         $mediaTypeNegotiator->negotiate(Argument::any())->willReturn($serializer);
 
-        $listener = new ResponseListener(
+        $listener = new ResourceResponseListener(
             $mediaTypeNegotiator->reveal(),
             MediaTypes::TYPE_APPLICATION_XML
         );

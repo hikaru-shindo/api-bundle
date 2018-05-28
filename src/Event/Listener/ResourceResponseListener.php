@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 
-class ResponseListener
+class ResourceResponseListener
 {
     private $defaultContentType;
     private $mediaTypeNegotiator;

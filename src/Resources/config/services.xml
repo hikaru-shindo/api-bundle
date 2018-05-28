@@ -2,9 +2,6 @@
 <container xmlns="http://symfony.com/schema/dic/services"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-    <parameters>
-        <parameter key="saikootau_api.default_content_type">application/xml</parameter>
-    </parameters>
     <services>
         <service class="Saikootau\ApiBundle\MediaType\MediaTypeNegotiator"
                  id="saikootau_api.media_type.serializer_negotiator"
@@ -33,15 +30,15 @@
                  id="saikootau_api.event.listener.exception_response"
                  public="false">
             <argument type="service" id="saikootau_api.media_type.serializer_negotiator" />
-            <argument type="string">%saikootau_api.default_content_type%</argument>
+            <argument type="string">application/xml</argument>
             <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException" />
         </service>
 
-        <service class="Saikootau\ApiBundle\Event\Listener\ResponseListener"
-                 id="saikootau_api.event.listener.response"
+        <service class="Saikootau\ApiBundle\Event\Listener\ResourceResponseListener"
+                 id="saikootau_api.event.listener.resource_response"
                  public="false">
             <argument type="service" id="saikootau_api.media_type.serializer_negotiator" />
-            <argument type="string">%saikootau_api.default_content_type%</argument>
+            <argument type="string">application/xml</argument>
             <tag name="kernel.event_listener" event="kernel.view" method="onKernelView" />
         </service>
     </services>

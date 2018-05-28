@@ -16,7 +16,7 @@ diff-lint: ; ./vendor/bin/php-cs-fixer fix \
              --dry-run \
              --diff
 
-phpstan: ; ./vendor/bin/phpstan analyze --level=max src
+phpstan: ; ./vendor/bin/phpstan analyze --level=max --configuration=phpstan.neon src
 
 phpunit: ; ./vendor/bin/phpunit
 

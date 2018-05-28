@@ -8,7 +8,7 @@ use JMS\Serializer\SerializerInterface;
 use PHPUnit\Framework\TestCase;
 use Saikootau\ApiBundle\ApiBundle;
 use Saikootau\ApiBundle\Event\Listener\ExceptionResponseListener;
-use Saikootau\ApiBundle\Event\Listener\ResponseListener;
+use Saikootau\ApiBundle\Event\Listener\ResourceResponseListener;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class ApiBundleExtensionTest extends TestCase
@@ -17,7 +17,7 @@ class ApiBundleExtensionTest extends TestCase
     {
         $container = $this->getContainerForConfig([], function (ContainerBuilder $container) {
             $container->getDefinition('saikootau_api.event.listener.exception_response')->setPublic(true);
-            $container->getDefinition('saikootau_api.event.listener.response')->setPublic(true);
+            $container->getDefinition('saikootau_api.event.listener.resource_response')->setPublic(true);
         });
 
         $this->assertNotEmpty(
@@ -25,8 +25,8 @@ class ApiBundleExtensionTest extends TestCase
             sprintf('%s is no event listener', ExceptionResponseListener::class)
         );
         $this->assertNotEmpty(
-            $container->getDefinition('saikootau_api.event.listener.response')->getTag('kernel.event_listener'),
-            sprintf('%s is no event listener', ResponseListener::class)
+            $container->getDefinition('saikootau_api.event.listener.resource_response')->getTag('kernel.event_listener'),
+            sprintf('%s is no event listener', ResourceResponseListener::class)
         );
     }
 
