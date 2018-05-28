@@ -108,7 +108,7 @@ class ResourceResponseListener
      *
      * @throws NotAcceptableHttpException
      */
-    protected function getSerializer(Request $request): Serializer
+    private function getSerializer(Request $request): Serializer
     {
         try {
             /** @var Serializer $serializer */
