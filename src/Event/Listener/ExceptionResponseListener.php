@@ -20,11 +20,13 @@ class ExceptionResponseListener
 {
     private $defaultContentType;
     private $mediaTypeNegotiator;
+    private $exposeErrors;
 
-    public function __construct(MediaTypeNegotiator $mediaTypeNegotiator, string $defaultContentType)
+    public function __construct(MediaTypeNegotiator $mediaTypeNegotiator, string $defaultContentType, bool $exposeErrors = false)
     {
         $this->mediaTypeNegotiator = $mediaTypeNegotiator;
         $this->defaultContentType = $defaultContentType;
+        $this->exposeErrors = $exposeErrors;
     }
 
     public function onKernelException(GetResponseForExceptionEvent $event): void
@@ -42,10 +44,11 @@ class ExceptionResponseListener
 
     private function getResponse(Request $request, Throwable $exception): Response
     {
-        $errors = (new ErrorResourceBuilder())->build($exception);
+        $errors = $this->createErrorResourceBuilder()->build($exception);
         $service = (new ServiceResourceBuilder($request))
             ->addError(...$errors)
-            ->build();
+            ->build()
+        ;
 
         $serializer = $this->getSerializer($request);
 
@@ -54,6 +57,19 @@ class ExceptionResponseListener
             $this->getResponseStatusCodeByException($exception),
             $this->getResponseHeadersByException($serializer->getContentType(), $exception)
         );
+    }
+
+    private function createErrorResourceBuilder(): ErrorResourceBuilder
+    {
+        $errorResourceBuilder = new ErrorResourceBuilder();
+
+        if ($this->exposeErrors) {
+            $errorResourceBuilder->exposeStack();
+        } else {
+            $errorResourceBuilder->doNotExposeStack();
+        }
+
+        return $errorResourceBuilder;
     }
 
     private function getResponseStatusCodeByException(Throwable $exception): int

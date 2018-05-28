@@ -31,6 +31,7 @@
                  public="false">
             <argument type="service" id="saikootau_api.media_type.serializer_negotiator" />
             <argument type="string">application/xml</argument>
+            <argument type="constant">false</argument>
             <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException" />
         </service>
 

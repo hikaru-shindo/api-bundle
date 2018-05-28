@@ -80,6 +80,29 @@ class ExceptionResponseListenerTest extends TestCase
         $listener->onKernelException($event->reveal());
     }
 
+    public function testConvertsExceptionToResponseIfNoResponseIsGivenForGivenExposeArgument(): void
+    {
+        $serializer = $this->getMockBuilder([Serializer::class, MediaTypeHandler::class])->getMock();
+        $mediaTypeNegotiator = $this->prophesize(MediaTypeNegotiator::class);
+        $mediaTypeNegotiator->negotiate(Argument::any())->willReturn($serializer);
+
+        $listener = new ExceptionResponseListener(
+            $mediaTypeNegotiator->reveal(),
+            MediaTypes::TYPE_APPLICATION_XML,
+            true
+        );
+
+        $event = $this->prophesize(GetResponseForExceptionEvent::class);
+        $event->getRequest()->willReturn(Request::create('/', Request::METHOD_GET, [], [], [], [
+            'HTTP_ACCEPT' => 'application/xml;q=0.8',
+        ]));
+        $event->getResponse()->willReturn(null);
+        $event->getException()->willReturn($this->prophesize(Exception::class));
+        $event->setResponse(Argument::type(Response::class))->shouldBeCalled();
+
+        $listener->onKernelException($event->reveal());
+    }
+
     public function testDefaultStatusCodeIsInternalError(): void
     {
         $serializer = $this->getMockBuilder([Serializer::class, MediaTypeHandler::class])->getMock();

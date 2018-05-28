@@ -19,10 +19,6 @@ class ResourceResponseListener
     private $defaultContentType;
     private $mediaTypeNegotiator;
 
-    private static $noContentMethods = [
-        'HEAD',
-    ];
-
     public function __construct(MediaTypeNegotiator $mediaTypeNegotiator, string $defaultContentType)
     {
         $this->mediaTypeNegotiator = $mediaTypeNegotiator;
@@ -38,8 +34,9 @@ class ResourceResponseListener
         }
 
         $serializer = $this->getSerializer($event->getRequest());
+
         $body = '';
-        if ($this->isContentAllowed($event->getRequest()->getMethod()) && null !== $controllerResult) {
+        if (null !== $controllerResult) {
             $body = $serializer->serialize($this->getResource($controllerResult));
         }
 
@@ -100,18 +97,6 @@ class ResourceResponseListener
         }
 
         return $headers;
-    }
-
-    /**
-     * Checks if the response should contain any content.
-     *
-     * @param string $method
-     *
-     * @return bool
-     */
-    private function isContentAllowed(string $method): bool
-    {
-        return !in_array($method, self::$noContentMethods);
     }
 
     /**

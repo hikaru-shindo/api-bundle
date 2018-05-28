@@ -11,6 +11,9 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class ApiBundleExtension extends Extension
 {
+    private const SERVICE_EXCEPTION_RESOURCE_LISTENER = 'saikootau_api.event.listener.exception_response';
+    private const SERVICE_RESOURCE_RESPONSE_LISTENER = 'saikootau_api.event.listener.resource_response';
+
     /**
      * {@inheritdoc}
      */
@@ -38,8 +41,9 @@ class ApiBundleExtension extends Extension
         $this->loadServices($container);
 
         $configs = $this->loadConfiguration($configs, $container);
-        $this->configureResponseListenerDefaultContentType('saikootau_api.event.listener.resource_response', $configs, $container);
-        $this->configureResponseListenerDefaultContentType('saikootau_api.event.listener.exception_response', $configs, $container);
+        $this->configureResponseListenerDefaultContentType(self::SERVICE_EXCEPTION_RESOURCE_LISTENER, $configs, $container);
+        $this->configureResponseListenerDefaultContentType(self::SERVICE_EXCEPTION_RESOURCE_LISTENER, $configs, $container);
+        $this->configureErrorResponseListener($configs, $container);
     }
 
     /**
@@ -71,13 +75,25 @@ class ApiBundleExtension extends Extension
     /**
      * Set the default content type for given response listener service.
      *
-     * @param string $serviceId
-     * @param array $configs
+     * @param string           $serviceId
+     * @param array            $configs
      * @param ContainerBuilder $container
      */
     private function configureResponseListenerDefaultContentType(string $serviceId, array $configs, ContainerBuilder $container): void
     {
-        $responseListener = $container->getDefinition($serviceId);
-        $responseListener->setArgument(1, $configs['default_content_type']);
+        $definition = $container->getDefinition($serviceId);
+        $definition->setArgument(1, $configs['default_content_type']);
+    }
+
+    /**
+     * Configure special error response listener arguments. Ex. error expose state.
+     *
+     * @param array            $configs
+     * @param ContainerBuilder $container
+     */
+    private function configureErrorResponseListener(array $configs, ContainerBuilder $container): void
+    {
+        $definition = $container->getDefinition(self::SERVICE_EXCEPTION_RESOURCE_LISTENER);
+        $definition->setArgument(2, $configs['expose_all_errors']);
     }
 }

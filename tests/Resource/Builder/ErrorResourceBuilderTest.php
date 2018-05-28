@@ -8,6 +8,8 @@ use Exception;
 use PHPUnit\Framework\TestCase;
 use Saikootau\ApiBundle\Resource\Builder\ErrorResourceBuilder;
 use Saikootau\ApiBundle\Resource\Error;
+use Saikootau\ApiBundle\Tests\Resource\Builder\Fixture\ExposableException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ErrorResourceBuilderTest extends TestCase
 {
@@ -31,10 +33,10 @@ class ErrorResourceBuilderTest extends TestCase
         $builder = new ErrorResourceBuilder();
 
         $exception1 = new Exception('test1', 123);
-        $exception2 = new Exception('test2', 234, $exception1);
+        $exception2 = new ExposableException('test2', 234, $exception1);
         $exception3 = new Exception('test3', 345, $exception2);
 
-        $errors = $builder->traceStack()->build($exception3);
+        $errors = $builder->exposeStack()->build($exception3);
 
         $this->assertCount(3, $errors);
         $this->assertContainsOnly(Error::class, $errors);
@@ -48,13 +50,29 @@ class ErrorResourceBuilderTest extends TestCase
         $builder = new ErrorResourceBuilder();
 
         $exception1 = new Exception('test1', 123);
-        $exception2 = new Exception('test2', 234, $exception1);
+        $exception2 = new ExposableException('test2', 234, $exception1);
         $exception3 = new Exception('test3', 345, $exception2);
 
-        $errors = $builder->doNotTraceStack()->build($exception3);
+        $errors = $builder->doNotExposeStack()->build($exception3);
 
         $this->assertCount(1, $errors);
         $this->assertContainsOnly(Error::class, $errors);
-        $this->assertSame('test3', $errors[0]->getMessage());
+        $this->assertSame('test2', $errors[0]->getMessage());
+        $this->assertSame('TestError', $errors[0]->getType());
+    }
+
+    public function testHttpExceptionIsExposed(): void
+    {
+        $builder = new ErrorResourceBuilder();
+
+        $exception1 = new Exception('test1', 123);
+        $exception2 = new NotFoundHttpException('test2', $exception1);
+        $exception3 = new Exception('test3', 345, $exception2);
+
+        $errors = $builder->doNotExposeStack()->build($exception3);
+
+        $this->assertCount(1, $errors);
+        $this->assertContainsOnly(Error::class, $errors);
+        $this->assertSame('test2', $errors[0]->getMessage());
     }
 }
