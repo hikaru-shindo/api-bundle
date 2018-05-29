@@ -26,14 +26,14 @@
             <argument type="service" id="jms_serializer" />
         </service>
 
-        <service class="Saikootau\ApiBundle\Event\Listener\ExceptionResponseListener"
+        <service class="Saikootau\ApiBundle\EventListener\ExceptionResponseListener"
                  id="saikootau_api.event.listener.exception_response"
                  public="false">
             <argument type="service" id="saikootau_api.media_type.serializer_negotiator" />
             <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException" />
         </service>
 
-        <service class="Saikootau\ApiBundle\Event\Listener\ResourceResponseListener"
+        <service class="Saikootau\ApiBundle\EventListener\ResourceResponseListener"
                  id="saikootau_api.event.listener.resource_response"
                  public="false">
             <argument type="service" id="saikootau_api.media_type.serializer_negotiator" />

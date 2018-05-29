@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Saikootau\ApiBundle\Event\Listener;
+namespace Saikootau\ApiBundle\EventListener;
 
 use Saikootau\ApiBundle\MediaType\Exception\NonNegotiableMediaTypeException;
 use Saikootau\ApiBundle\MediaType\MediaTypeNegotiator;

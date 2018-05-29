@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Saikootau\ApiBundle\Tests\Event\Listener;
+namespace Saikootau\ApiBundle\Tests\EventListener;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Saikootau\ApiBundle\Event\Listener\ResourceResponseListener;
+use Saikootau\ApiBundle\EventListener\ResourceResponseListener;
 use Saikootau\ApiBundle\Http\ResourceResponse;
 use Saikootau\ApiBundle\MediaType\Exception\NonNegotiableMediaTypeException;
 use Saikootau\ApiBundle\MediaType\MediaTypeHandler;
