@@ -16,8 +16,14 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('default_content_type')->defaultValue('application/xml')->end()
-                ->booleanNode('expose_all_errors')->defaultFalse()->end()
+                ->scalarNode('default_content_type')
+                    ->defaultValue('application/xml')
+                    ->info('Which content type to fallback if negotation fails.')
+                ->end()
+                ->booleanNode('expose_all_errors')
+                    ->defaultFalse()
+                    ->info('Whether to expose the whole error stack or just some chosen messages for public use.')
+                ->end()
             ->end()
         ;
 
