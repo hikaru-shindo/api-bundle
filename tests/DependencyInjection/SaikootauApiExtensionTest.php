@@ -11,7 +11,7 @@ use Saikootau\ApiBundle\Event\Listener\ExceptionResponseListener;
 use Saikootau\ApiBundle\Event\Listener\ResourceResponseListener;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class ApiBundleExtensionTest extends TestCase
+class SaikootauApiExtensionTest extends TestCase
 {
     public function testEventListenersAreRegisteredCorrectly(): void
     {

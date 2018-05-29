@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Saikootau\ApiBundle;
 
-use Saikootau\ApiBundle\DependencyInjection\ApiBundleExtension;
+use Saikootau\ApiBundle\DependencyInjection\SaikootauApiExtension;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class ApiBundle extends Bundle
@@ -14,8 +14,8 @@ class ApiBundle extends Bundle
      */
     public function getContainerExtension()
     {
-        if (!$this->extension instanceof ApiBundleExtension) {
-            $this->extension = new ApiBundleExtension();
+        if (!$this->extension instanceof SaikootauApiExtension) {
+            $this->extension = new SaikootauApiExtension();
         }
 
         return $this->extension;

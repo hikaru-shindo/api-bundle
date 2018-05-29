@@ -9,20 +9,14 @@ use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
-class ApiBundleExtension extends Extension
+class SaikootauApiExtension extends Extension
 {
     private const SERVICE_EXCEPTION_RESOURCE_LISTENER = 'saikootau_api.event.listener.exception_response';
     private const SERVICE_RESOURCE_RESPONSE_LISTENER = 'saikootau_api.event.listener.resource_response';
 
     /**
-     * {@inheritdoc}
-     */
-    public function getAlias(): string
-    {
-        return 'saikootau_api';
-    }
-
-    /**
+     * Return an instance of the bundles configuration class.
+     *
      * @param array            $config
      * @param ContainerBuilder $container
      *
@@ -42,7 +36,7 @@ class ApiBundleExtension extends Extension
 
         $configs = $this->loadConfiguration($configs, $container);
         $this->configureResponseListenerDefaultContentType(self::SERVICE_EXCEPTION_RESOURCE_LISTENER, $configs, $container);
-        $this->configureResponseListenerDefaultContentType(self::SERVICE_EXCEPTION_RESOURCE_LISTENER, $configs, $container);
+        $this->configureResponseListenerDefaultContentType(self::SERVICE_RESOURCE_RESPONSE_LISTENER, $configs, $container);
         $this->configureErrorResponseListener($configs, $container);
     }
 

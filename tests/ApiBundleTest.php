@@ -6,7 +6,7 @@ namespace Saikootau\ApiBundle\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Saikootau\ApiBundle\ApiBundle;
-use Saikootau\ApiBundle\DependencyInjection\ApiBundleExtension;
+use Saikootau\ApiBundle\DependencyInjection\SaikootauApiExtension;
 
 class ApiBundleTest extends TestCase
 {
@@ -14,6 +14,6 @@ class ApiBundleTest extends TestCase
     {
         $bundle = new ApiBundle();
 
-        $this->assertInstanceOf(ApiBundleExtension::class, $bundle->getContainerExtension());
+        $this->assertInstanceOf(SaikootauApiExtension::class, $bundle->getContainerExtension());
     }
 }
