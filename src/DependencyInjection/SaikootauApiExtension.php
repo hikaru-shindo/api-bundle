@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class SaikootauApiExtension extends Extension
 {
-    private const SERVICE_EXCEPTION_RESOURCE_LISTENER = 'saikootau_api.event.listener.exception_response';
+    private const SERVICE_EXCEPTION_RESPONSE_LISTENER = 'saikootau_api.event.listener.exception_response';
     private const SERVICE_RESOURCE_RESPONSE_LISTENER = 'saikootau_api.event.listener.resource_response';
 
     /**
@@ -35,7 +35,7 @@ class SaikootauApiExtension extends Extension
         $this->loadServices($container);
 
         $configs = $this->loadConfiguration($configs, $container);
-        $this->configureResponseListenerDefaultContentType(self::SERVICE_EXCEPTION_RESOURCE_LISTENER, $configs, $container);
+        $this->configureResponseListenerDefaultContentType(self::SERVICE_EXCEPTION_RESPONSE_LISTENER, $configs, $container);
         $this->configureResponseListenerDefaultContentType(self::SERVICE_RESOURCE_RESPONSE_LISTENER, $configs, $container);
         $this->configureErrorResponseListener($configs, $container);
     }
@@ -87,7 +87,7 @@ class SaikootauApiExtension extends Extension
      */
     private function configureErrorResponseListener(array $configs, ContainerBuilder $container): void
     {
-        $definition = $container->getDefinition(self::SERVICE_EXCEPTION_RESOURCE_LISTENER);
+        $definition = $container->getDefinition(self::SERVICE_EXCEPTION_RESPONSE_LISTENER);
         $definition->setArgument(2, $configs['expose_all_errors']);
     }
 }
