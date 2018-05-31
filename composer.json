@@ -20,6 +20,16 @@
         },
         "sort-packages": true
     },
+    "autoload": {
+        "psr-4": {
+            "Saikootau\\ApiBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Saikootau\\ApiBundle\\Tests\\": "tests/"
+        }
+    },
     "license": "MIT",
     "authors": [
         {
